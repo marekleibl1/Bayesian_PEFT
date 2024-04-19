@@ -1,2 +1,2 @@
 # Bayesian_PEFT
-Based on Bayesian LoRA Paper
+Based on the Bayesian LoRA Paper
