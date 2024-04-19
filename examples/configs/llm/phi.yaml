@@ -1,0 +1,37 @@
+name: phi
+model_name_or_path: microsoft/phi-2
+
+config_class: AutoConfig
+config_kwargs:
+  trust_remote_code: true
+
+tokenizer_class: AutoTokenizer
+tokenizer_kwargs:
+  use_fast: true
+
+tokenizer_special_tokens: {}
+
+model_class: AutoModelForCausalLM
+model_kwargs:
+  torch_dtype: auto
+  trust_remote_code: true
+  # attn_implementation: "flash_attention_2"
+
+# Global HF generation configurations
+global_gen_kwargs: {}
+
+add_space: false
+is_s2s: false
+
+use_peft: false
+peft:
+  # List of all available modules to target for phi
+  # target_modules: ["q_proj", "k_proj", "v_proj", "dense", "fc1", "fc2", "lm_head"]
+  target_modules: ["q_proj", "v_proj", "lm_head"]
+
+use_quant: false
+
+defaults:
+  - quantization: none
+  - peft: lora
+  - _self_
