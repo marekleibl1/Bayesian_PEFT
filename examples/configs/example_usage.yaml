@@ -5,7 +5,7 @@ defaults:
   - base_config
   - opt: adamw
   - dset: arc
-  - llm: phi
+  - llm: gpt2
   - override llm/peft: lora # unused if use_peft: None
   - override llm/quantization: 4bit
   - _self_
@@ -71,8 +71,8 @@ llm:
   use_quant: true
 
   model_kwargs:
-    # torch_dtype: auto # float32
-    torch_dtype: bfloat16 # Try using float32
+    torch_dtype: auto # float32
+    #torch_dtype: bfloat16 # Try using float32
     low_cpu_mem_usage: true
 
   # kwargs used when setting up the tokenizer
