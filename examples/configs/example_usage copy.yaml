@@ -21,7 +21,7 @@ log_level: INFO # DEBUG | INFO | WARN | ERROR | CRITICAL
 run_every_step: true
 
 # Print this configuration at the start
-print_config: true
+print_config: false
 
 # Show progress bars using tqdm
 use_tqdm: true

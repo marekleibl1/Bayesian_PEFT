@@ -1,0 +1,14 @@
+LICENSE
+README.md
+pyproject.toml
+setup.py
+bayesian_lora/__init__.py
+bayesian_lora/kfac.py
+bayesian_lora/main.py
+bayesian_lora.egg-info/PKG-INFO
+bayesian_lora.egg-info/SOURCES.txt
+bayesian_lora.egg-info/dependency_links.txt
+bayesian_lora.egg-info/requires.txt
+bayesian_lora.egg-info/top_level.txt
+tests/test_example.py
+tests/test_kfac.py

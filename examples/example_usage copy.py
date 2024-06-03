@@ -56,8 +56,9 @@ def main(cfg: DictConfig):
     # 1. Load configuration from Hydra
     #
     device = "cuda:0"
+    
     setup_loggers(cfg)
-    os.makedirs(cfg.paths.output_dir, exist_ok=True)
+    os.makedirs(cfg.paths.output_dir, exist_ok=True) 
 
     #
     # 2. Load PEFT model and dataset
@@ -310,4 +311,5 @@ def main(cfg: DictConfig):
 
 
 if __name__ == "__main__":
-    main()
+    for n_kfac in [2, 5, 10, 20]:
+        main(n_kfac)

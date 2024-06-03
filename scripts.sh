@@ -16,8 +16,20 @@ rsync -avz -e 'ssh -p 50379' \
     --exclude 'data' \
     --exclude 'workspace' 
 
+
+    ssh -p 37126 root@213.181.123.81 -L 8080:localhost:8080
+
+rsync -avz -e 'ssh -p 37126' \
+    /Users/marek/Projects/Bayesian_PEFT/ \
+    root@213.181.123.81:/workspace/Bayesian_PEFT/ \
+    --exclude '**/__pycache__' \
+    --exclude '**/.ipynb_checkpoints' \
+    --exclude '.git' \
+    --exclude 'venv' \
+    --exclude 'data' 
+
 # Setup 
-pip install -e ".[examples]" && pip install bitsandbytes
+pip install -e ".[examples]" && pip install bitsandbytes && apt install psmisc
 
 # Run example
 python ./examples/example_usage.py
