@@ -101,9 +101,12 @@ def main(cfg: DictConfig):
     losses = []
     samples = []
 
-    while grad_steps < cfg.train_steps:
+    # train_steps = cfg.train_steps
+    train_steps = 10
+
+    while grad_steps < train_steps:
         epoch += 1
-        logging.info(f"Beginning epoch {epoch} ({grad_steps} / {cfg.train_steps})")
+        logging.info(f"Beginning epoch {epoch} ({grad_steps} / {train_steps})")
         for batch in tqdm(train_loader, disable=not cfg.use_tqdm, file=sys.stdout):
             opt.zero_grad()
             prompts, classes, _ = batch
@@ -122,7 +125,7 @@ def main(cfg: DictConfig):
             # if grad_steps < 10:
             #     samples.append([prompts, classes])
             
-            if not grad_steps < cfg.train_steps:
+            if not grad_steps < train_steps:
                 break
     logging.info(f"Saving MAP parameters after finetuning to {map_param_path}")
     model.save_pretrained(map_param_path)
