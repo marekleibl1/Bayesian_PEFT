@@ -99,7 +99,8 @@ def main(cfg: DictConfig):
     # TODO export sample prompts and classes dsdsdsd
     # TODO export loss, train step, batch size
     losses = []
-    samples = []
+    sample_prompts = []
+    sample_classes = []
 
     # train_steps = cfg.train_steps
     train_steps = 10
@@ -120,10 +121,11 @@ def main(cfg: DictConfig):
             opt.step()
             grad_steps += 1
             
-            losses.append(loss.cpu().detach().numpy().tolist())
+            losses.extend(loss.cpu().detach().numpy().tolist())
 
             if grad_steps < 10:
-                samples.append([prompts, classes.numpy().tolist()])
+                sample_prompts.extend(prompts)
+                sample_classes.extend(classes.numpy().tolist())
             
             if not grad_steps < train_steps:
                 break
@@ -131,7 +133,8 @@ def main(cfg: DictConfig):
     model.save_pretrained(map_param_path)
 
     print('losses', losses[0])
-    print('samples', samples[0])
+    print('sample_prompts', sample_prompts[:5])
+    print('sample_classes', sample_classes[:50])
 
 
 if __name__ == "__main__":
