@@ -95,15 +95,18 @@ def main(cfg: DictConfig):
     )
     opt = optclass(model.parameters(), **opt_cfg)
     logging.info("Training MAP parameters")
+
+    # TODO export sample prompts and classes dsdsdsd
+    # TODO export loss, train step, batch size
+    losses = []
+    samples = []
+
     while grad_steps < cfg.train_steps:
         epoch += 1
         logging.info(f"Beginning epoch {epoch} ({grad_steps} / {cfg.train_steps})")
         for batch in tqdm(train_loader, disable=not cfg.use_tqdm, file=sys.stdout):
             opt.zero_grad()
             prompts, classes, _ = batch
-            
-            # TODO export sample prompts and classes dsdsdsd
-            # TODO export loss, train step, batch size
             
             inputs = tokenizer(prompts, **cfg.tokenizer_run_kwargs).to(device)
             logits = model(**inputs).logits[:, -1, dset.target_ids.squeeze(-1)]
@@ -113,12 +116,19 @@ def main(cfg: DictConfig):
             loss.backward()
             opt.step()
             grad_steps += 1
+            
+            losses.append(loss.cpu())
+
+            if grad_steps < 10:
+                samples.append([prompts, classes])
+            
             if not grad_steps < cfg.train_steps:
                 break
     logging.info(f"Saving MAP parameters after finetuning to {map_param_path}")
     model.save_pretrained(map_param_path)
 
-   
+    print('losses', losses)
+    print('samples', samples)
 
 
 if __name__ == "__main__":
