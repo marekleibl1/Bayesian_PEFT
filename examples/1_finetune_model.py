@@ -120,7 +120,7 @@ def main(cfg: DictConfig):
             opt.step()
             grad_steps += 1
             
-            losses.append(loss.cpu().numpy())
+            losses.append(loss.cpu().detach().numpy())
 
             # if grad_steps < 10:
             #     samples.append([prompts, classes])
