@@ -123,7 +123,7 @@ def main(cfg: DictConfig):
             losses.append(loss.cpu().detach().numpy().tolist())
 
             if grad_steps < 10:
-                samples.append([prompts.numpy().tolist(), classes.numpy().tolist()])
+                samples.append([prompts, classes.numpy().tolist()])
             
             if not grad_steps < train_steps:
                 break
