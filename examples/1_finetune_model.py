@@ -102,7 +102,7 @@ def main(cfg: DictConfig):
             opt.zero_grad()
             prompts, classes, _ = batch
             
-            # TODO export sample prompts and classes 
+            # TODO export sample prompts and classes dsdsdsd
             # TODO export loss, train step, batch size
             
             inputs = tokenizer(prompts, **cfg.tokenizer_run_kwargs).to(device)
