@@ -101,6 +101,7 @@ def main(cfg: DictConfig):
     losses = []
     sample_prompts = []
     sample_classes = []
+    epoch_steps, batch_size = None, None # To estimate training data size
 
     # train_steps = cfg.train_steps
     train_steps = 10  # For debugging
@@ -126,9 +127,16 @@ def main(cfg: DictConfig):
             if grad_steps < 10:
                 sample_prompts.extend(prompts)
                 sample_classes.extend(classes.numpy().tolist())
+                batch_size = len(prompts)
             
             if not grad_steps < train_steps:
                 break
+
+        if epoch == 1:
+            epoch_steps = grad_steps
+
+    training_data_size = epoch_steps * batch_size
+
     logging.info(f"Saving MAP parameters after finetuning to {map_param_path}")
     model.save_pretrained(map_param_path)
 
@@ -136,12 +144,14 @@ def main(cfg: DictConfig):
     print('sample_prompts', sample_prompts[:5])
     print('sample_classes', sample_classes[:50])
 
-    # TODO export as a json 
+    # --- export as a json 
 
     data_dict = dict(
         losses=losses,
         sample_prompts=sample_prompts, 
-        sample_classes=sample_classes
+        sample_classes=sample_classes, 
+        dataset_name = cfg.dset.name,
+        training_data_size = training_data_size
     )
 
     export_dir = 'export'
