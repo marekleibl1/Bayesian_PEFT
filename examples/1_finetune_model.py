@@ -123,15 +123,15 @@ def main(cfg: DictConfig):
             losses.append(loss.cpu().detach().numpy().tolist())
 
             if grad_steps < 10:
-                samples.append([prompts, classes])
+                samples.append([prompts.numpy().tolist(), classes.numpy().tolist()])
             
             if not grad_steps < train_steps:
                 break
     logging.info(f"Saving MAP parameters after finetuning to {map_param_path}")
     model.save_pretrained(map_param_path)
 
-    print('losses', losses)
-    print('samples', samples)
+    print('losses', losses[0])
+    print('samples', samples[0])
 
 
 if __name__ == "__main__":
