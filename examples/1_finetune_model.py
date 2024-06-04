@@ -44,7 +44,7 @@ from utils import dsets
 from utils.loggers import setup_loggers
 from utils.setup_llm import setup_llm
 from bayesian_lora.main import jacobian_mean
-
+import json 
 
 @hydra.main(
     version_base="1.3",
@@ -136,6 +136,22 @@ def main(cfg: DictConfig):
     print('sample_prompts', sample_prompts[:5])
     print('sample_classes', sample_classes[:50])
 
+    # TODO export as a json 
+
+    data_dict = dict(
+        losses=losses,
+        sample_prompts=sample_prompts, 
+        sample_classes=sample_classes
+    )
+
+    export_dir = 'export'
+    export_path = os.path.abspath(os.path.join(export_dir, 'training_stats.json'))
+    os.makedirs(export_dir, exist_ok=True)
+
+    with open(export_dir, 'w') as f:
+        json.dump(data_dict, f)
+
+    print('Exported to', export_path) 
 
 if __name__ == "__main__":
     main()
