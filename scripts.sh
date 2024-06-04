@@ -31,6 +31,9 @@ rsync -avz -e 'ssh -p 37126' \
 # Alternative solution (when scp does not work - e.q. on work laptop)
 git add -A && git commit -m 'update' && git push 
 
+# Then on Vast
+git pull && python examples/...
+
 # Setup 
 pip install -e ".[examples]" && pip install bitsandbytes && apt install psmisc
 

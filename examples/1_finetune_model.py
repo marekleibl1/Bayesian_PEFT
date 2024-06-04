@@ -103,7 +103,7 @@ def main(cfg: DictConfig):
     sample_classes = []
 
     # train_steps = cfg.train_steps
-    train_steps = 10
+    train_steps = 10  # For debugging
 
     while grad_steps < train_steps:
         epoch += 1
@@ -148,7 +148,7 @@ def main(cfg: DictConfig):
     export_path = os.path.abspath(os.path.join(export_dir, 'training_stats.json'))
     os.makedirs(export_dir, exist_ok=True)
 
-    with open(export_dir, 'w') as f:
+    with open(export_path, 'w') as f:
         json.dump(data_dict, f)
 
     print('Exported to', export_path) 
