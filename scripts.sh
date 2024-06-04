@@ -28,16 +28,8 @@ rsync -avz -e 'ssh -p 37126' \
     --exclude 'venv' \
     --exclude 'data' 
 
-ssh -p 40645 root@83.32.15.193 -L 8080:localhost:8080
-
-rsync -avz -e 'ssh -p 40645' \
-    /Users/marekleibl/Personal/Bayesian_PEFT/ \
-    root@83.32.15.193:/workspace/Bayesian_PEFT/ \
-    --exclude '**/__pycache__' \
-    --exclude '**/.ipynb_checkpoints' \
-    --exclude '.git' \
-    --exclude 'venv' \
-    --exclude 'data' 
+# Alternative solution (when scp does not work - e.q. on work laptop)
+git add -A && git commit -m 'update' && git push 
 
 # Setup 
 pip install -e ".[examples]" && pip install bitsandbytes && apt install psmisc

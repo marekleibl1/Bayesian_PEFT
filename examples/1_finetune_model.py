@@ -117,10 +117,10 @@ def main(cfg: DictConfig):
             opt.step()
             grad_steps += 1
             
-            losses.append(loss.cpu())
+            # losses.append(loss.cpu())
 
-            if grad_steps < 10:
-                samples.append([prompts, classes])
+            # if grad_steps < 10:
+            #     samples.append([prompts, classes])
             
             if not grad_steps < cfg.train_steps:
                 break
