@@ -96,8 +96,6 @@ def main(cfg: DictConfig):
     opt = optclass(model.parameters(), **opt_cfg)
     logging.info("Training MAP parameters")
 
-    # TODO export sample prompts and classes dsdsdsd
-    # TODO export loss, train step, batch size
     losses = []
     sample_prompts = []
     sample_classes = []
@@ -150,8 +148,16 @@ def main(cfg: DictConfig):
         losses=losses,
         sample_prompts=sample_prompts, 
         sample_classes=sample_classes, 
-        dataset_name = cfg.dset.name,
-        training_data_size = training_data_size
+        dataset = dict(
+            name=cfg.dset.name,
+            training_data_size=training_data_size
+        ), 
+        model = dict(
+            name=cfg.llm.name,
+            lora_r=cfg.llm.peft.r, 
+            is_s2s=cfg.llm.is_s2s,  # sequence to sequence model?
+            batch_size=cfg.dset.train_bs
+        )
     )
 
     export_dir = 'export'
