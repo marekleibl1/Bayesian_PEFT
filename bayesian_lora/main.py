@@ -298,7 +298,9 @@ def variance(
 
         B_expanded = B.mT[None, None, :]  # [1, 1, n_kfc, d]
         L_expanded = L[None, None, :]  # [1, 1, n_lora, n_lora]
-        BGL = B_expanded @ G @ L_expanded
+        # BGL = B_expanded @ G @ L_expanded
+        BGL = B_expanded.to(dtype=t.float32) @ G.to(dtype=t.float32) @ L_expanded.to(dtype=t.float32)
+
         BGL_vec = BGL.flatten(-2).to(dtype=t.float64)  # [batch, n_logits, M_size]
         term_2 = s2.pow(2.0) * BGL_vec @ t.linalg.inv(M) @ BGL_vec.mT
         assert term_2.shape == (batch_size, n_logits, n_logits)
