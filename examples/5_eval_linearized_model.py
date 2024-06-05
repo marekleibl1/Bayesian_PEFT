@@ -109,7 +109,8 @@ def main(cfg: DictConfig):
     prior_path = f"{cfg.paths.output_dir}/prior_params.pth"
     logging.info("Loading prior parameters (optimised using marginal likelihood)")
     priors = t.load(prior_path)
-    s2 = priors["s2"]
+    s2 = 0.1 #  priors["s2"]
+    print('Ignoring optimized prior - using the default value')
 
     #
     # 7. Make linearized predictions
@@ -141,38 +142,36 @@ def main(cfg: DictConfig):
 
     metric_kwargs = {"task": "multiclass", "num_classes": dset.n_labels}
 
+    total_loss = 0
+    acc_metric = Accuracy(**metric_kwargs).to(device)
+    ece_metric = CalibrationError(**metric_kwargs).to(device)
+
+
+    run_baseline = False
+
     # ---- Baseline
 
-    total_loss = 0
+    if run_baseline:
 
-    # baseline_logits = []
-    acc_metric = Accuracy(**metric_kwargs).to(device)
-    ece_metric = CalibrationError(**metric_kwargs).to(device)
+        with t.no_grad():
+            for batch in tqdm(val_loader, disable=not cfg.use_tqdm, file=sys.stdout):
+                prompts, classes, _ = batch
+                classes = classes.to(device)
 
-    with t.no_grad():
-        for batch in tqdm(val_loader, disable=not cfg.use_tqdm, file=sys.stdout):
-            prompts, classes, _ = batch
-            classes = classes.to(device)
+                batch_inputs = tokenizer(prompts, **cfg.tokenizer_run_kwargs).to(device)
 
-            batch_inputs = tokenizer(prompts, **cfg.tokenizer_run_kwargs).to(device)
+                logits = model(**batch_inputs).logits[:, -1, dset.target_ids.squeeze(-1)]
+                # baseline_logits.append(logits.cpu())
+                acc_metric(logits, classes)
+                ece_metric(logits, classes)
+                total_loss += F.cross_entropy(logits, classes).item()
 
-            logits = model(**batch_inputs).logits[:, -1, dset.target_ids.squeeze(-1)]
-            # baseline_logits.append(logits.cpu())
-            acc_metric(logits, classes)
-            ece_metric(logits, classes)
-            total_loss += F.cross_entropy(logits, classes).item()
+        loss = total_loss / len(val_loader)
+        baseline_acc = acc_metric.compute().item()
+        baseline_ece = ece_metric.compute().item()
 
-    loss = total_loss / len(val_loader)
-    baseline_acc = acc_metric.compute().item()
-    baseline_ece = ece_metric.compute().item()
-
-    logging.info(f"Baseline NLL: {loss:.5f}, ACC: {baseline_acc:.5f}, ECE: {baseline_ece:.5f}")
-
-    # ----
-
-    total_loss = 0
-    acc_metric = Accuracy(**metric_kwargs).to(device)
-    ece_metric = CalibrationError(**metric_kwargs).to(device)
+        logging.info(f"Baseline NLL: {loss:.5f}, ACC: {baseline_acc:.5f}, ECE: {baseline_ece:.5f}")
+        return 
 
     def output_callback(outputs: ModelOutput) -> Tensor:
         """Post process model outputs.
