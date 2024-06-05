@@ -123,10 +123,28 @@ def main(cfg: DictConfig):
         loss.backward()
         t.nn.utils.clip_grad_norm_(s2, 1.0)
         opt.step()
-        model_evidence_losses.append(loss.cpu().detach().numpy().tolist())
+        loss_val = loss.cpu().detach().numpy().tolist()
+        model_evidence_losses.append(loss_val)
+        print('Model evidence ', loss_val)
 
     t.save({"s2": s2}, prior_path)
     logging.info(f"prior variance is: {s2.item()}")
+
+    import json
+
+    data_dict = dict(
+        model_evidence_losses=model_evidence_losses
+    )
+
+    export_dir = 'export'
+    export_path = os.path.abspath(os.path.join(export_dir, 'optimise_priors.json'))
+    os.makedirs(export_dir, exist_ok=True)
+
+    with open(export_path, 'w') as f:
+        json.dump(data_dict, f)
+
+    print('Exported to', export_path) 
+
 
 
    
