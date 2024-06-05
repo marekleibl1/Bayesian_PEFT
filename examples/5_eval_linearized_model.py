@@ -57,6 +57,7 @@ def main(cfg: DictConfig):
     #
     device = "cuda:0"
     
+    cfg.print_config = False
     setup_loggers(cfg)
     os.makedirs(cfg.paths.output_dir, exist_ok=True) 
 
@@ -109,7 +110,7 @@ def main(cfg: DictConfig):
     prior_path = f"{cfg.paths.output_dir}/prior_params.pth"
     logging.info("Loading prior parameters (optimised using marginal likelihood)")
     priors = t.load(prior_path)
-    s2 = t.Tensor([0.1]) #  priors["s2"]
+    s2 = t.Tensor([0.1]).to(device) #  priors["s2"]
     print('Ignoring optimized prior - using the default value')
 
     #
