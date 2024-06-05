@@ -114,6 +114,7 @@ def main(cfg: DictConfig):
 
 
     logging.info("Successfully finished.")
+    print('ll_path', ll_path)
 
 
 if __name__ == "__main__":
