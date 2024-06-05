@@ -109,7 +109,12 @@ def main(cfg: DictConfig):
                 inputs = tokenizer(prompts, **cfg.tokenizer_run_kwargs).to(device)
                 logits = model(**inputs).logits[:, -1, dset.target_ids.squeeze(-1)]
                 probs = logits.softmax(-1)
-                LL += probs.gather(1, classes[:, None].to(device)).sum()
+
+                # What is this?? Shouldn't it be a sum of log-probabilities? Is this missing a logarithm? 
+                # LL += probs.gather(1, classes[:, None].to(device)).sum()
+
+                # Is it now correct?
+                LL += probs.gather(1, classes[:, None].to(device)).log().sum()
         t.save(LL, ll_path)
 
     import numpy as np
