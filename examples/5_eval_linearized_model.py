@@ -109,7 +109,7 @@ def main(cfg: DictConfig):
     prior_path = f"{cfg.paths.output_dir}/prior_params.pth"
     logging.info("Loading prior parameters (optimised using marginal likelihood)")
     priors = t.load(prior_path)
-    s2 = t.Tensor(0.1) #  priors["s2"]
+    s2 = t.Tensor([0.1]) #  priors["s2"]
     print('Ignoring optimized prior - using the default value')
 
     #
