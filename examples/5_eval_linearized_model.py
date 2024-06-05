@@ -215,6 +215,28 @@ def main(cfg: DictConfig):
         output_path,
     )
 
+
+    # ---- Baseline
+
+    baseline_logits = []
+
+    with t.no_grad():
+        for batch in tqdm(val_loader, disable=not cfg.use_tqdm, file=sys.stdout):
+            prompts, classes, _ = batch
+            classes = classes.to(device)
+
+            batch_inputs = tokenizer(prompts, **cfg.tokenizer_run_kwargs).to(device)
+
+            logits = model(**batch_inputs).logits[:, -1, dset.target_ids.squeeze(-1)]
+            # baseline_logits.append(logits.cpu())
+            acc_metric(logits, classes)
+            ece_metric(logits, classes)
+
+
+    baseline_acc = acc_metric.compute().item()
+    baseline_ece = ece_metric.compute().item()
+
+    logging.info(f"Baseline NLL: {0:.5f}, ACC: {baseline_acc:.5f}, ECE: {baseline_ece:.5f}")
     logging.info("Successfully finished.")
 
 
