@@ -113,7 +113,7 @@ def main(cfg: DictConfig):
     # s2 = t.Tensor([0.1]).to(device) #  priors["s2"]
     # s2 = priors["s2"]
     # TODO what is this number exactly? 
-    prior_var = 1e-5  # TODO try different values
+    prior_var = 1e-6  # TODO try different values
     s2 = priors["s2"] / priors["s2"] * prior_var
     print('Ignoring optimized prior - using the default value')
 
@@ -248,6 +248,8 @@ def main(cfg: DictConfig):
         output_path,
     )
 
+    print('Validation batches')
+
     logging.info("Successfully finished.")
 
     """
@@ -258,6 +260,7 @@ def main(cfg: DictConfig):
     Var 0.01  -  NLL: 1.18446, ACC: 0.86444, ECE: 0.15981
     Var 0.001 -  NLL: 1.08173, ACC: 0.86268, ECE: 0.02428
     Var 1e-4  -  NLL: 1.06383, ACC: 0.86444, ECE: 0.04857
+    Var 1e-5  -  NLL: 1.06215, ACC: 0.86444, ECE: 0.04143
     """
 
 
