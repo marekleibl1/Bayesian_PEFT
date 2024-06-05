@@ -139,8 +139,38 @@ def main(cfg: DictConfig):
     pred_var = []
     pred_logits = []
 
-    total_loss = 0
     metric_kwargs = {"task": "multiclass", "num_classes": dset.n_labels}
+
+    # ---- Baseline
+
+    total_loss = 0
+
+    # baseline_logits = []
+    acc_metric = Accuracy(**metric_kwargs).to(device)
+    ece_metric = CalibrationError(**metric_kwargs).to(device)
+
+    with t.no_grad():
+        for batch in tqdm(val_loader, disable=not cfg.use_tqdm, file=sys.stdout):
+            prompts, classes, _ = batch
+            classes = classes.to(device)
+
+            batch_inputs = tokenizer(prompts, **cfg.tokenizer_run_kwargs).to(device)
+
+            logits = model(**batch_inputs).logits[:, -1, dset.target_ids.squeeze(-1)]
+            # baseline_logits.append(logits.cpu())
+            acc_metric(logits, classes)
+            ece_metric(logits, classes)
+            total_loss += F.cross_entropy(logits, classes).item()
+
+    loss = total_loss / len(val_loader)
+    baseline_acc = acc_metric.compute().item()
+    baseline_ece = ece_metric.compute().item()
+
+    logging.info(f"Baseline NLL: {loss:.5f}, ACC: {baseline_acc:.5f}, ECE: {baseline_ece:.5f}")
+
+    # ----
+
+    total_loss = 0
     acc_metric = Accuracy(**metric_kwargs).to(device)
     ece_metric = CalibrationError(**metric_kwargs).to(device)
 
@@ -216,29 +246,7 @@ def main(cfg: DictConfig):
     )
 
 
-    # ---- Baseline
-
-    baseline_logits = []
-    acc_metric = Accuracy(**metric_kwargs).to(device)
-    ece_metric = CalibrationError(**metric_kwargs).to(device)
-
-    with t.no_grad():
-        for batch in tqdm(val_loader, disable=not cfg.use_tqdm, file=sys.stdout):
-            prompts, classes, _ = batch
-            classes = classes.to(device)
-
-            batch_inputs = tokenizer(prompts, **cfg.tokenizer_run_kwargs).to(device)
-
-            logits = model(**batch_inputs).logits[:, -1, dset.target_ids.squeeze(-1)]
-            # baseline_logits.append(logits.cpu())
-            acc_metric(logits, classes)
-            ece_metric(logits, classes)
-
-
-    baseline_acc = acc_metric.compute().item()
-    baseline_ece = ece_metric.compute().item()
-
-    logging.info(f"Baseline NLL: {0:.5f}, ACC: {baseline_acc:.5f}, ECE: {baseline_ece:.5f}")
+    
     logging.info("Successfully finished.")
 
 
