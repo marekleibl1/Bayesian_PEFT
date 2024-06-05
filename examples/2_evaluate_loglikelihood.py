@@ -113,7 +113,7 @@ def main(cfg: DictConfig):
         t.save(LL, ll_path)
 
     import numpy as np
-    numpy_path =ll_path.replace() 
+    numpy_path =ll_path.replace('pth', 'npy') 
     np.save(LL.numpy(), numpy_path)
     print('ll_path', numpy_path)
 
