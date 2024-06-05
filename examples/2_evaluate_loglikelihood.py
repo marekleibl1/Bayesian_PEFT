@@ -114,7 +114,7 @@ def main(cfg: DictConfig):
 
     import numpy as np
     numpy_path =ll_path.replace('pth', 'npy') 
-    np.save(LL.cpu().numpy(), numpy_path)
+    np.save(numpy_path, LL.cpu().numpy())
     print('ll_path', numpy_path)
 
     logging.info("Successfully finished.")
