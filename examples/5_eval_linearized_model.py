@@ -219,6 +219,8 @@ def main(cfg: DictConfig):
     # ---- Baseline
 
     baseline_logits = []
+    acc_metric = Accuracy(**metric_kwargs).to(device)
+    ece_metric = CalibrationError(**metric_kwargs).to(device)
 
     with t.no_grad():
         for batch in tqdm(val_loader, disable=not cfg.use_tqdm, file=sys.stdout):
