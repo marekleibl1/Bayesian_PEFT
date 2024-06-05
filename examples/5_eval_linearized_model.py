@@ -112,7 +112,7 @@ def main(cfg: DictConfig):
     priors = t.load(prior_path)
     # s2 = t.Tensor([0.1]).to(device) #  priors["s2"]
     # s2 = priors["s2"]
-    prior_var = 0.001  # TODO try different values
+    prior_var = 0.0001  # TODO try different values
     s2 = priors["s2"] / priors["s2"] * prior_var
     print('Ignoring optimized prior - using the default value')
 
@@ -247,16 +247,15 @@ def main(cfg: DictConfig):
         output_path,
     )
 
-
-    
     logging.info("Successfully finished.")
 
     """
     Results with different Prior Variance
-    Baseline -  NLL: 0.41716, ACC: 0.86268, ECE: 0.04673
-    Var 1    -  NLL: nan,     ACC: 0.54049, ECE: 0.22699
-    Var 0.1  -  NLL: 1.41531, ACC: 0.79401, ECE: 0.36347
-    Var 0.01 -  
+    Baseline  -  NLL: 0.41716, ACC: 0.86268, ECE: 0.04673
+    Var 1     -  NLL: nan,     ACC: 0.54049, ECE: 0.22699
+    Var 0.1   -  NLL: 1.41531, ACC: 0.79401, ECE: 0.36347
+    Var 0.01  -  NLL: 1.18446, ACC: 0.86444, ECE: 0.15981
+    Var 0.001 -  NLL: 1.08173, ACC: 0.86268, ECE: 0.02428
     """
 
 
