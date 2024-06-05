@@ -112,7 +112,7 @@ def main(cfg: DictConfig):
     priors = t.load(prior_path)
     # s2 = t.Tensor([0.1]).to(device) #  priors["s2"]
     # s2 = priors["s2"]
-    s2 = priors["s2"] / priors["s2"] * 0.1 
+    s2 = priors["s2"] / priors["s2"] * 0.1 # TODO also try prior variance = 1? or different values? 
     print('Ignoring optimized prior - using the default value')
 
     #
@@ -149,8 +149,7 @@ def main(cfg: DictConfig):
     acc_metric = Accuracy(**metric_kwargs).to(device)
     ece_metric = CalibrationError(**metric_kwargs).to(device)
 
-
-    run_baseline = False
+    run_baseline = True
 
     # ---- Baseline
 
