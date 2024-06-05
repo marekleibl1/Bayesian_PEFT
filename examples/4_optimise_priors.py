@@ -113,6 +113,8 @@ def main(cfg: DictConfig):
     s2 = t.tensor(cfg.prior_var, requires_grad=True)
     opt = t.optim.AdamW([s2], lr=1e-2)
 
+    model_evidence_losses = []
+
     for _ in range(200):
         opt.zero_grad()
         loss = model_evidence(
@@ -121,6 +123,8 @@ def main(cfg: DictConfig):
         loss.backward()
         t.nn.utils.clip_grad_norm_(s2, 1.0)
         opt.step()
+        model_evidence_losses.append(loss.cpu().detach().numpy().tolist())
+
     t.save({"s2": s2}, prior_path)
     logging.info(f"prior variance is: {s2.item()}")
 

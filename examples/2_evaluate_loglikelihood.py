@@ -111,6 +111,7 @@ def main(cfg: DictConfig):
                 probs = logits.softmax(-1)
 
                 # What is this?? Shouldn't it be a sum of log-probabilities? Is this missing a logarithm? 
+                # Also the number makes no sense, log-likelihood should be a negative number
                 # LL += probs.gather(1, classes[:, None].to(device)).sum()
 
                 # Is it now correct?
