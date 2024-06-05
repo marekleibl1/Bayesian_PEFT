@@ -112,9 +112,13 @@ def main(cfg: DictConfig):
                 LL += probs.gather(1, classes[:, None].to(device)).sum()
         t.save(LL, ll_path)
 
+    import numpy as np
+    numpy_path =ll_path.replace() 
+    np.save(LL.numpy(), numpy_path)
+    print('ll_path', numpy_path)
 
     logging.info("Successfully finished.")
-    print('ll_path', ll_path)
+    
 
 
 if __name__ == "__main__":
