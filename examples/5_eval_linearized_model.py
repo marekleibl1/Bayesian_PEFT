@@ -72,12 +72,6 @@ def main(cfg: DictConfig):
     #
     # 3. Do MAP training
     #
-    train_loader = dset.loader(
-        is_s2s=cfg.llm.is_s2s,  # sequence to sequence model?
-        batch_size=cfg.dset.train_bs,  # training batch size
-        split=cfg.dset.train_split,  # training split name in dset
-        subset_size=cfg.dset.train_subset,  # train on subset? (-1 = no subset)
-    )
     map_param_path = f"{cfg.paths.output_dir}/MAP_params.pth"
     
     logging.info(f"Loading MAP parameters from {map_param_path}")
@@ -232,6 +226,9 @@ def main(cfg: DictConfig):
             logits = logits.squeeze(-1).mean(0)
 
             pred_logits.append(logits.cpu())
+
+            print(f'logits, classes: {logits.shape, classes.shape}')
+
             total_loss += F.cross_entropy(logits, classes).item()
             acc_metric(logits, classes)
             logits = logits.squeeze(-1).mean(0)
