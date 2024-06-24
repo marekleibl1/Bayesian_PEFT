@@ -110,22 +110,56 @@ def main(cfg: DictConfig):
     prior_path = f"{cfg.paths.output_dir}/prior_params.pth"
 
     logging.info("Optimising priors using marginal likelihood")
-    s2 = t.tensor(cfg.prior_var, requires_grad=True)
-    opt = t.optim.AdamW([s2], lr=1e-2)
 
-    model_evidence_losses = []
+    import numpy as np 
 
-    for _ in range(200):
-        opt.zero_grad()
-        loss = model_evidence(
-            model, LL, factors, cfg.llm.peft.r, cfg.n_kfac, s2
-        ).log()
-        loss.backward()
-        t.nn.utils.clip_grad_norm_(s2, 1.0)
-        opt.step()
-        loss_val = loss.cpu().detach().numpy().tolist()
-        model_evidence_losses.append(loss_val)
-        print('Model evidence ', loss_val)
+    def optimise_priors_original():
+        s2 = t.tensor(cfg.prior_var, requires_grad=True)
+        opt = t.optim.AdamW([s2], lr=1e-2)
+
+        model_evidence_losses = []
+
+        for _ in range(200):
+            opt.zero_grad()
+            loss = model_evidence(
+                model, LL, factors, cfg.llm.peft.r, cfg.n_kfac, s2
+            ).log()
+            loss.backward()
+            t.nn.utils.clip_grad_norm_(s2, 1.0)
+            opt.step()
+            loss_val = loss.cpu().detach().numpy().tolist()
+            model_evidence_losses.append(loss_val)
+            print('Model evidence ', loss_val)
+        return s2, model_evidence_losses
+    
+    def optimise_priors_new():
+        """Based on an example code from Variational LLA."""
+        log_s2 = t.tensor(np.log(cfg.prior_var), requires_grad=True)
+        opt = t.optim.AdamW([log_s2], lr=1e-2)
+
+        model_evidence_losses = []
+
+        for i in range(200):
+            opt.zero_grad()
+
+            # TODO shouldn't we optimize the negative loss? 
+            loss = model_evidence(
+                model, LL, factors, cfg.llm.peft.r, cfg.n_kfac, log_s2.exp()
+            ).log()
+            loss.backward()
+            # t.nn.utils.clip_grad_norm_(s2, 1.0)
+            opt.step()
+
+            # Print loss value
+            loss_val = loss.cpu().detach().numpy().tolist()
+            s2_val = log_s2.exp().cpu().detach().numpy().tolist()
+            model_evidence_losses.append(loss_val)
+            print(f'Step {i}: Model evidence: {s2_val} loss {loss_val} ')
+
+        s2 = log_s2.exp()
+        return s2, model_evidence_losses
+    
+    s2, model_evidence_losses = optimise_priors_new()
 
     t.save({"s2": s2}, prior_path)
     logging.info(f"prior variance is: {s2.item()}")

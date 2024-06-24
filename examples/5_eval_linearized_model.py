@@ -113,8 +113,8 @@ def main(cfg: DictConfig):
     # s2 = t.Tensor([0.1]).to(device) #  priors["s2"]
     # s2 = priors["s2"]
     # TODO what is this number exactly? 
-    prior_var = 1e-6  # TODO try different values
-    s2 = priors["s2"] / priors["s2"] * prior_var
+    s2 = 3e-4  # TODO try different values
+    s2 = priors["s2"] / priors["s2"] * s2
     print('Ignoring optimized prior - using the default value')
 
     #
@@ -226,7 +226,15 @@ def main(cfg: DictConfig):
             L = L.expand(samples, *L.shape)
             eps = t.randn_like(f_mu).unsqueeze(-1)
             logits = f_mu[..., None] + L @ eps
-            logits = logits.squeeze(-1).softmax(-1).mean(0)
+
+            # this was also a bug - there should be no softmax (?)
+            # logits = logits.squeeze(-1).softmax(-1).mean(0)
+            logits = logits.squeeze(-1).mean(0)
+
+            pred_logits.append(logits.cpu())
+            total_loss += F.cross_entropy(logits, classes).item()
+            acc_metric(logits, classes)
+            logits = logits.squeeze(-1).mean(0)
 
             pred_logits.append(logits.cpu())
             total_loss += F.cross_entropy(logits, classes).item()
@@ -253,15 +261,43 @@ def main(cfg: DictConfig):
     logging.info("Successfully finished.")
 
     """
-    Results with different Prior Variance
-    Baseline  -  NLL: 0.41716, ACC: 0.86268, ECE: 0.04673
+Results
+
+Metrics
+- NLL = Negative log-likelihood (cross-entropy)
+- ACC = Accuracy
+- ECE = Expected Calibration Error
+
+Results with different Prior Variance
+    Baseline:
+    NLL: 0.41716, ACC: 0.86268, ECE: 0.04673  --> Baseline: Finetuned model without Laplace
+    NLL: 0.41203, ACC: 0.87324, ECE: 0.05720
+    NLL: 0.41238, ACC: 0.87324, ECE: 0.05390
+    NLL: 0.41173, ACC: 0.87324, ECE: 0.05046
+    NLL: 0.41165, ACC: 0.87324, ECE: 0.05012
+    AVG - NLL: 0.4113, ACC: 0.873, ECE: 0.051 (roughly)
+
+    PP 1e-5
+    NLL: 0.41119, ACC: 0.87324, ECE: 0.05419
+
+    Prior precision 3e-3:
+    NLL: 0.41227, ACC: 0.87324, ECE: 0.04730
+    NLL: 0.41154, ACC: 0.87324, ECE: 0.04864
+
+    Prior precision 0.1:
+    NLL: 0.41429, ACC: 0.87500, ECE: 0.05723
+
+
+    # Old with a bug 
     Var 1     -  NLL: nan,     ACC: 0.54049, ECE: 0.22699
-    Var 0.1   -  NLL: 1.41531, ACC: 0.79401, ECE: 0.36347
+    Var 0.1   -  NLL: 1.41531, ACC: 0.79401, ECE: 0.36347 
     Var 0.01  -  NLL: 1.18446, ACC: 0.86444, ECE: 0.15981
-    Var 0.001 -  NLL: 1.08173, ACC: 0.86268, ECE: 0.02428
+    Var 0.001 -  NLL: 1.08173, ACC: 0.86268, ECE: 0.02428  --> The only case with better ECE compared to the baseline, but worse NLL
+    Var 3e-4  -  NLL: 1.06210, ACC: 0.86092, ECE: 0.04448
     Var 1e-4  -  NLL: 1.06383, ACC: 0.86444, ECE: 0.04857
     Var 1e-5  -  NLL: 1.06215, ACC: 0.86444, ECE: 0.04143
-    """
+"""
+
 
 
 if __name__ == "__main__":

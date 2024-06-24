@@ -1,0 +1,6 @@
+
+Possible discovered bugs:
+- optimization of priors 
+    - should be negative loss that we minimize 
+    - better to optimize logarithm
+    - see how it's done in VaLLA 

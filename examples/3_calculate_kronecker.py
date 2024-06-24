@@ -86,12 +86,6 @@ def main(cfg: DictConfig):
     model = peft.PeftModel.from_pretrained(model, map_param_path, is_trainable=True)
     model = model.to(device)
 
-    #
-    # 4. Evaluate the log likelihood
-    #
-    ll_path = f"{cfg.paths.output_dir}/ll.pth"
-    logging.info(f"Loading LL from {ll_path}")
-    LL = t.load(ll_path)
 
     #
     # 5. Calculate the (low-rank) Kronecker factors
