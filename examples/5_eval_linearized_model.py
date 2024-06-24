@@ -145,7 +145,7 @@ def main(cfg: DictConfig):
     acc_metric = Accuracy(**metric_kwargs).to(device)
     ece_metric = CalibrationError(**metric_kwargs).to(device)
 
-    run_baseline = False
+    run_baseline = True
 
     # ---- Baseline
 
