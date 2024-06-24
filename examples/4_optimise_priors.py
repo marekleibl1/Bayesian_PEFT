@@ -143,9 +143,14 @@ def main(cfg: DictConfig):
             opt.zero_grad()
 
             # TODO shouldn't we optimize the negative loss? 
-            loss = model_evidence(
+            # loss = model_evidence(
+            #     model, LL, factors, cfg.llm.peft.r, cfg.n_kfac, log_s2.exp()
+            # ).log()
+
+            loss = -model_evidence(
                 model, LL, factors, cfg.llm.peft.r, cfg.n_kfac, log_s2.exp()
             ).log()
+
             loss.backward()
             # t.nn.utils.clip_grad_norm_(s2, 1.0)
             opt.step()
