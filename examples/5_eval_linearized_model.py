@@ -227,11 +227,10 @@ def main(cfg: DictConfig):
 
             pred_logits.append(logits.cpu())
 
-            print(f'logits, classes: {logits.shape, classes.shape}')
-
-            total_loss += F.cross_entropy(logits, classes).item()
-            acc_metric(logits, classes)
-            logits = logits.squeeze(-1).mean(0)
+            # print(f'logits, classes: {logits.shape, classes.shape}')
+            # total_loss += F.cross_entropy(logits, classes).item()
+            # acc_metric(logits, classes)
+            # logits = logits.squeeze(-1).mean(0)
 
             pred_logits.append(logits.cpu())
             total_loss += F.cross_entropy(logits, classes).item()
