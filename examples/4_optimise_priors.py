@@ -135,7 +135,7 @@ def main(cfg: DictConfig):
     def optimise_priors_new():
         """Based on an example code from Variational LLA."""
         log_s2 = t.tensor(np.log(cfg.prior_var), requires_grad=True)
-        opt = t.optim.AdamW([log_s2], lr=1e-2)
+        opt = t.optim.AdamW([log_s2], lr=0.1)
 
         model_evidence_losses = []
 
