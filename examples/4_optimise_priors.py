@@ -133,7 +133,13 @@ def main(cfg: DictConfig):
         return s2, model_evidence_losses
     
     def optimise_priors_new():
-        """Based on an example code from Variational LLA."""
+        """
+        Inspired by an example code from Variational LLA notebook.
+        
+        Two main changes from the original:
+         - we optimize log precision instead of precision
+         - we minimize negative log-likelikhood = maximize log-likelihood
+        """
         log_s2 = t.tensor(np.log(cfg.prior_var), requires_grad=True)
         opt = t.optim.AdamW([log_s2], lr=0.1)
 
