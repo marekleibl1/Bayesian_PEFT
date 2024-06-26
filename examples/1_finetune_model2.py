@@ -104,8 +104,8 @@ def main(cfg: DictConfig):
     sample_classes = []
     epoch_steps, batch_size = None, None # To estimate training data size
 
-    # train_steps = cfg.train_steps
-    train_steps = cfg.train_steps // 2 #  10  # For debugging
+    train_steps = cfg.train_steps
+    # train_steps = cfg.train_steps // 2 #  10  # For debugging
 
     while grad_steps < train_steps:
         epoch += 1
