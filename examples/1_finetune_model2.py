@@ -96,7 +96,10 @@ def main(cfg: DictConfig):
     opt = optclass(model.parameters(), **opt_cfg)
     logging.info("Training MAP parameters")
 
-    losses = []
+    import numpy as np 
+
+    losses = {}
+    valid_losses = {}
     sample_prompts = []
     sample_classes = []
     epoch_steps, batch_size = None, None # To estimate training data size
@@ -120,7 +123,7 @@ def main(cfg: DictConfig):
             opt.step()
             grad_steps += 1
             
-            losses.append(loss.cpu().detach().numpy().tolist())
+            losses[grad_steps] = loss.cpu().detach().numpy().tolist()
 
             if grad_steps < 10:
                 sample_prompts.extend(prompts)
@@ -135,7 +138,7 @@ def main(cfg: DictConfig):
 
         logging.info(f"Computing validation loss ...")
 
-        valid_losses = []
+        epoch_val_losses = []
 
         with t.no_grad(), t.inference_mode():
             for batch in tqdm(val_loader, disable=not cfg.use_tqdm, file=sys.stdout):
@@ -143,9 +146,10 @@ def main(cfg: DictConfig):
                 inputs = tokenizer(prompts, **cfg.tokenizer_run_kwargs).to(device)
                 logits = model(**inputs).logits[:, -1, dset.target_ids.squeeze(-1)]
                 loss = F.cross_entropy(logits, classes.to(device))
-                valid_losses.append(loss.cpu().detach().numpy().tolist())
-
-        logging.info(f"Computing validation loss ...")
+                epoch_val_losses.append(loss.cpu().detach().numpy().tolist())
+        
+        valid_losses[grad_steps]=np.mean(epoch_val_losses)
+        logging.info(f"Computing validation loss - done")
 
 
     training_data_size = epoch_steps * batch_size
