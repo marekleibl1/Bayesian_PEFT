@@ -104,8 +104,8 @@ def main(cfg: DictConfig):
     sample_classes = []
     epoch_steps, batch_size = None, None # To estimate training data size
 
-    train_steps = cfg.train_steps
-    # train_steps = 10  # For debugging
+    # train_steps = cfg.train_steps
+    train_steps = 10  # For debugging
 
     while grad_steps < train_steps:
         epoch += 1
@@ -157,7 +157,7 @@ def main(cfg: DictConfig):
     logging.info(f"Saving MAP parameters after finetuning to {map_param_path}")
     model.save_pretrained(map_param_path)
 
-    print('losses', losses[0])
+    # print('losses', losses[0])
     print('sample_prompts', sample_prompts[:5])
     print('sample_classes', sample_classes[:50])
 
