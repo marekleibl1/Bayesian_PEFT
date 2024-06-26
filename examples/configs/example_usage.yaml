@@ -83,7 +83,7 @@ llm:
     pad_token: tokenizer.bos_token
 
   peft:
-    r: 8 # 'n_lora' the LoRA rank
+    r: 2 # 8 # 'n_lora' the LoRA rank
     bias: "none" # "lora_only"
 
 out_dir: null
