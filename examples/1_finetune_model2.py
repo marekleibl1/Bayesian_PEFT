@@ -24,6 +24,7 @@ import importlib
 import torch as t
 import torch.nn as nn
 import torch.nn.functional as F
+import numpy as np 
 
 from tqdm import tqdm
 from torch import Tensor
@@ -96,7 +97,21 @@ def main(cfg: DictConfig):
     opt = optclass(model.parameters(), **opt_cfg)
     logging.info("Training MAP parameters")
 
-    import numpy as np 
+    def compute_validation_loss(): 
+        logging.info(f"Computing validation loss ...")
+
+        epoch_val_losses = []
+
+        with t.no_grad(), t.inference_mode():
+            for batch in tqdm(val_loader, disable=not cfg.use_tqdm, file=sys.stdout):
+                prompts, classes, _ = batch
+                inputs = tokenizer(prompts, **cfg.tokenizer_run_kwargs).to(device)
+                logits = model(**inputs).logits[:, -1, dset.target_ids.squeeze(-1)]
+                loss = F.cross_entropy(logits, classes.to(device))
+                epoch_val_losses.append(loss.cpu().detach().numpy().tolist())
+
+        logging.info(f"Computing validation loss - done")
+        return np.mean(epoch_val_losses)
 
     losses = {}
     valid_losses = {}
@@ -106,6 +121,9 @@ def main(cfg: DictConfig):
 
     train_steps = cfg.train_steps
     # train_steps = cfg.train_steps // 2 #  10  # For debugging
+
+    # Validation loss before the training 
+    valid_losses[0] = compute_validation_loss()
 
     while grad_steps < train_steps:
         epoch += 1
@@ -136,20 +154,10 @@ def main(cfg: DictConfig):
         if epoch == 1:
             epoch_steps = grad_steps
 
-        logging.info(f"Computing validation loss ...")
-
-        epoch_val_losses = []
-
-        with t.no_grad(), t.inference_mode():
-            for batch in tqdm(val_loader, disable=not cfg.use_tqdm, file=sys.stdout):
-                prompts, classes, _ = batch
-                inputs = tokenizer(prompts, **cfg.tokenizer_run_kwargs).to(device)
-                logits = model(**inputs).logits[:, -1, dset.target_ids.squeeze(-1)]
-                loss = F.cross_entropy(logits, classes.to(device))
-                epoch_val_losses.append(loss.cpu().detach().numpy().tolist())
+        # --- Compute validation error every epoch
+            
+        valid_losses[grad_steps] = compute_validation_loss()
         
-        valid_losses[grad_steps]=np.mean(epoch_val_losses)
-        logging.info(f"Computing validation loss - done")
 
 
     training_data_size = epoch_steps * batch_size
