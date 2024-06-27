@@ -282,7 +282,7 @@ def variance(
         # Ensure that G is [batch, n_logits, d, n_lora] sized at all times
         if G.shape[-1] != n_lora:
             G = G.mT
-        assert G.shape[-1] == n_lora
+        assert G.shape[-1] == n_lora, f'{G.shape[-1]} != {n_lora}'
 
         # Flatten the last 2 dimensions; giving [batch, n_logits, d * n_lora]
         G_vec = G.flatten(-2)
