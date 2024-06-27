@@ -113,8 +113,7 @@ def main(cfg: DictConfig):
         logging.info(f"Computing validation loss - done")
         return np.mean(epoch_val_losses)
 
-    losses = {}
-    valid_losses = {}
+    losses, valid_losses = {}, {}
     sample_prompts = []
     sample_classes = []
     epoch_steps, batch_size = None, None # To estimate training data size
@@ -124,6 +123,7 @@ def main(cfg: DictConfig):
 
     # Validation loss before the training 
     valid_losses[0] = compute_validation_loss()
+    best_valid_loss = valid_losses[0]
 
     while grad_steps < train_steps:
         epoch += 1
@@ -154,48 +154,49 @@ def main(cfg: DictConfig):
         if epoch == 1:
             epoch_steps = grad_steps
 
-        # --- Compute validation error every epoch
+        # --- Compute validation loss & export model and training stats 
             
-        valid_losses[grad_steps] = compute_validation_loss()
+        valid_loss = compute_validation_loss()
+        valid_losses[grad_steps] = valid_loss
         
+        if valid_loss < 0.99 * best_valid_loss:
+            logging.info(f"Saving new best model to {map_param_path}")
+            best_valid_loss = valid_loss
+            model.save_pretrained(map_param_path)
+            
 
+        training_data_size = epoch_steps * batch_size
 
-    training_data_size = epoch_steps * batch_size
+        # print('sample_prompts', sample_prompts[:5])
+        # print('sample_classes', sample_classes[:50])
 
-    logging.info(f"Saving MAP parameters after finetuning to {map_param_path}")
-    model.save_pretrained(map_param_path)
+        # --- export as a json 
 
-    # print('losses', losses[0])
-    print('sample_prompts', sample_prompts[:5])
-    print('sample_classes', sample_classes[:50])
-
-    # --- export as a json 
-
-    data_dict = dict(
-        losses=losses,
-        valid_losses =valid_losses,
-        sample_prompts=sample_prompts, 
-        sample_classes=sample_classes, 
-        dataset = dict(
-            name=cfg.dset.name,
-            training_data_size=training_data_size
-        ), 
-        model = dict(
-            name=cfg.llm.name,
-            lora_r=cfg.llm.peft.r, 
-            is_s2s=cfg.llm.is_s2s,  # sequence to sequence model?
-            batch_size=cfg.dset.train_bs
+        data_dict = dict(
+            losses=losses,
+            valid_losses =valid_losses,
+            sample_prompts=sample_prompts, 
+            sample_classes=sample_classes, 
+            dataset = dict(
+                name=cfg.dset.name,
+                training_data_size=training_data_size
+            ), 
+            model = dict(
+                name=cfg.llm.name,
+                lora_r=cfg.llm.peft.r, 
+                is_s2s=cfg.llm.is_s2s,  # sequence to sequence model?
+                batch_size=cfg.dset.train_bs
+            )
         )
-    )
 
-    export_dir = 'export'
-    export_path = os.path.abspath(os.path.join(export_dir, 'training_stats.json'))
-    os.makedirs(export_dir, exist_ok=True)
+        export_dir = 'export'
+        export_path = os.path.abspath(os.path.join(export_dir, 'training_stats.json'))
+        os.makedirs(export_dir, exist_ok=True)
 
-    with open(export_path, 'w') as f:
-        json.dump(data_dict, f)
+        with open(export_path, 'w') as f:
+            json.dump(data_dict, f)
 
-    print('Exported to', export_path) 
+        print('Exported to', export_path) 
 
 if __name__ == "__main__":
     main()

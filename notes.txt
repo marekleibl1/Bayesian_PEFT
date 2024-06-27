@@ -4,3 +4,16 @@ Possible discovered bugs:
     - should be negative loss that we minimize 
     - better to optimize logarithm
     - see how it's done in VaLLA 
+
+
+Done Changes 
+- Lora rank decreased to 1
+    - To reduce the overfitting
+- Early stopping
+
+
+
+
+Possible Improvements
+- Ensemmble of LoRAa
+    - this would be the easiest way 
