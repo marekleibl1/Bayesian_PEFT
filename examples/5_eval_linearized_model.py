@@ -107,7 +107,7 @@ def main(cfg: DictConfig):
     # s2 = t.Tensor([0.1]).to(device) #  priors["s2"]
     # s2 = priors["s2"]
     # TODO what is this number exactly? 
-    s2 = 1e-10 #  3e-4  # TODO try different values    
+    s2 = 3e-4  # TODO try different values    
     s2 = priors["s2"] / priors["s2"] * s2
     print(f'Ignoring optimized prior - using the default value: {s2}')
 
