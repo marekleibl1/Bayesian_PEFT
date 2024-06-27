@@ -281,6 +281,7 @@ def variance(
         G = jacobian.get(g_key).squeeze()
         # Ensure that G is [batch, n_logits, d, n_lora] sized at all times
         if G.shape[-1] != n_lora:
+            print(f'{G.shape[-1]} != {n_lora}')
             G = G.mT
         assert G.shape[-1] == n_lora, f'{G.shape[-1]} != {n_lora}'
 

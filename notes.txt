@@ -1,9 +1,12 @@
 
 Possible discovered bugs:
+- evaluate likelihood
+    - there was a missing softmax 
 - optimization of priors 
     - should be negative loss that we minimize 
     - better to optimize logarithm
     - see how it's done in VaLLA 
+- extra softmax in Kronecker that should not be there 
 
 
 Done Changes 
