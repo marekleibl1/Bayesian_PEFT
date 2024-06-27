@@ -83,6 +83,7 @@ llm:
     pad_token: tokenizer.bos_token
 
   peft:
+    # It does not work for r=1, likely the dim is removed  
     r: 2 # 'n_lora' the LoRA rank
     bias: "none" # "lora_only"
 
