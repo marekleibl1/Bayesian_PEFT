@@ -103,7 +103,11 @@ def main(cfg: DictConfig):
             if cfg.llm.is_s2s
             else outputs.logits[:, -1, dset.target_ids.squeeze(-1)]
         )
-        logits = logits.softmax(-1)
+
+        # This seems like a bug
+        # 1) after softmax it should not be called logits and 
+        # 2) there's an another softmax applied later
+        # logits = logits.softmax(-1)  
         return logits
 
     kfac_path = f"{cfg.paths.output_dir}/kronecker_factors.pth"
